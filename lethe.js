@@ -75,23 +75,24 @@ client.on('message', m => {
 
   if (m.content.startsWith(`${botMention} h`)) { // help
     if (!checkCommand(m, 'help')) return;
+    strHelp = `Here are the commands I support:
+      **Queue a video:** yt [video ID/URL]
+      **List videos in queue:** list
+      **Create a shortcut:** save [video ID/URL] [shortcut name]
+      **Queue a playlist:** pl [playlist ID/URL]
+      **Shuffle queue:** shuffle
+      **Skip current video:** next
+      **Get YouTube URL:** link
+      **Get current playback time:** time
+      **Replay Video:** replay
+      **Search YouTube:** yq [search term]`
 
     if (Config.shouldUsePMs) {
-      client.sendMessage(m.author,
-         `Here are the commands I support:
-          **Queue a video:** yt [video ID/URL]
-          **List videos in queue:** list
-          **Create a shortcut:** save [video ID/URL] [shortcut name]
-          **Queue a playlist:** pl [playlist ID/URL]
-          **Shuffle queue:** shuffle
-          **Skip current video:** next
-          **Get YouTube URL:** link
-          **Get current playback time:** time
-          **Replay Video:** replay
-          **Search YouTube:** yq [search term]`
-      ).then(msg => {
+      client.sendMessage(m.author, strHelp).then(msg => {
         client.reply(m, `I\'ve sent you my commands in PM`);
       });
+    } else if (!Config.shouldUseLinkToHelp) {
+      client.reply(m, strHelp);
     } else {
       client.reply(m, 'Usage info can be found here: https://github.com/meew0/Lethe/wiki/Usage');
     }
