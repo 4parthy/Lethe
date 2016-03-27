@@ -100,7 +100,7 @@ client.on('message', m => {
     return;
   }
 
-  if (m.content.startsWith(`${botMention} i`)) { // init
+  if (m.content.startsWith(`${botMention} init`)) { // init
     if (!checkCommand(m, 'init')) return;
     if (boundChannel) return;
     var userChannel = m.author.voiceChannel;
@@ -130,7 +130,7 @@ client.on('message', m => {
     return;
   }
 
-  if (m.content.startsWith(`${botMention} d`)) { // destroy
+  if (m.content.startsWith(`${botMention} destroy`)) { // destroy
     if (!checkCommand(m, 'destroy')) return;
     if (!boundChannel) return;
     client.reply(m, `Unbinding from <#${boundChannel.id}> and destroying voice connection`);
@@ -145,7 +145,7 @@ client.on('message', m => {
   // Only respond to other messages inside the bound channel
   if (!m.channel.equals(boundChannel)) return;
 
-  if (m.content.startsWith(`${botMention} n`)) { // next
+  if (m.content.startsWith(`${botMention} next`)) { // next
     if (!checkCommand(m, 'next')) return;
     if (currentVideo) {
       playStopped();
@@ -267,7 +267,7 @@ client.on('message', m => {
     return;
   }
 
-  if (m.content.startsWith(`${botMention} r`)) { // replay
+  if (m.content.startsWith(`${botMention} replay`)) { // replay
     if (!checkCommand(m, 'replay')) return;
     var videoToPlay = currentVideo ? currentVideo : lastVideo ? lastVideo : false;
     if (!videoToPlay) {
@@ -280,7 +280,7 @@ client.on('message', m => {
     return;
   }
 
-  if (m.content.startsWith(`${botMention} sh`)) { // shuffle
+  if (m.content.startsWith(`${botMention} shuffle`)) { // shuffle
     if (!checkCommand(m, 'shuffle')) return;
     if (playQueue.length < 2) {
       client.reply(m, 'Not enough songs in the queue.');
@@ -299,8 +299,8 @@ client.on('message', m => {
     return; // stop propagation
   }
 
-  if (m.content.startsWith(`${botMention} list s`)) { // list saved
-    if (!checkCommand(m, 'list saved')) return;
+  if (m.content.startsWith(`${botMention} list-saved`)) { // list saved
+    if (!checkCommand(m, 'list-saved')) return;
     var formattedList = 'Here are the videos currently saved: \n';
     for (var key in Saved.saved.videos) {
       if (Saved.saved.videos.hasOwnProperty(key)) {
@@ -320,7 +320,7 @@ client.on('message', m => {
     return; // so list doesn't get triggered
   }
 
-  if (m.content.startsWith(`${botMention} l`)) { // list
+  if (m.content.startsWith(`${botMention} list`)) { // list
     if (!checkCommand(m, 'list')) return;
 
     var formattedList = '';
@@ -357,7 +357,7 @@ client.on('message', m => {
     return;
   }
 
-  if (m.content.startsWith(`${botMention} s`)) { // save
+  if (m.content.startsWith(`${botMention} save`)) { // save
     if (!checkCommand(m, 'save')) return;
     var argument = spliceArguments(m.content)[1];
     if (!argument) {
@@ -377,7 +377,7 @@ client.on('message', m => {
     return;
   }
 
-  if (m.content.startsWith(`${botMention} t`)) { // time
+  if (m.content.startsWith(`${botMention} time`)) { // time
     if (!checkCommand(m, 'time')) return;
     var streamTime = client.internal.voiceConnection.streamTime; // in ms
     var streamSeconds = streamTime / 1000;
