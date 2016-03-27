@@ -385,7 +385,61 @@ client.on('message', m => {
     client.reply(m, `${Util.formatTime(streamSeconds)} / ${Util.formatTime(videoTime)} (${((streamSeconds * 100) / videoTime).toFixed(2)} %)`);
     return;
   }
+
+  if (m.content.toLowerCase().startsWith(`${botMention} slap`)) { // slap
+    if (!checkCommand(m, 'slap')) return;
+    console.log('Preparing fish slapping...');
+    if (!boundChannel) return;
+    var slapUsers = m.author.toString();
+    if (m.mentions.length >= 2) { slapUsers = m.mentions[1].toString() }
+    console.log("going to slap: " + slapUsers);
+    queryAndSendSlapFishMessage(slapUsers.trim());
+    return;
+  }
 });
+
+function queryAndSendSlapFishMessage(slapUsers) {
+  // Get random common fish name
+  var wikiUrl = "https://en.wikipedia.org"
+  var fishUrl = wikiUrl + "/w/api.php?action=query&format=json&list=categorymembers&cmtitle=Category%3AFish+common+names&cmprop=title&cmnamespace=0&cmtype=page&cmlimit=500"
+  request(fishUrl, (error, res) => {
+    var adjl = Array("large", "small", "gelb", "mad", "low", "salty", "sweet",
+                     "stinky", "poopeye", "pepperino", "crying", "pepe",
+                     "lucky", "sad", "bitter", "sour", "rotten", "screaming",
+                     "kawaii", "senf", "kowai", "~uguu", "sugoi", "cheesy",
+                     "perkele", "leet", "macintosh", "existential", "crawling",
+                     "power", "electric", "doki doki", "metal", "ananas");
+    var rndAdj = Math.floor(Math.random() * adjl.length);
+    var slapFish = adjl[rndAdj];
+
+    if (error) {
+      console.log('fish query gave bad error.');
+      slapFish += " ErrorTrout";
+    }
+    else if (res.statusCode != 200) {
+      console.log('fish query gave bad status.');
+      slapFish += " StatusTrout";
+    }
+    else {
+      var fishList = res.body.query.categorymembers;
+      var fishTitle = fishList[Math.floor(Math.random() * fishList.length)].title;
+      if (!fishTitle) {
+        console.log('fish query gave: ' + fishTitle);
+        slapFish += " QueryTrout";
+      }
+      else {
+        slapFish += " " + fishTitle;
+      }
+    }
+
+    var slapMsg = "Slaps " + slapUsers + " with a " + slapFish
+    boundChannel.sendMessage(slapMsg);
+
+    return;
+  });
+
+  return;
+}
 
 function parseVidAndQueue(vid, m, suppress) {
   vid = resolveVid(vid, m);
