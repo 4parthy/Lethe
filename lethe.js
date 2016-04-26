@@ -404,13 +404,17 @@ function queryAndSendSlapFishMessage(slapUsers) {
   var fishUrl = wikiUrl + "/w/api.php?action=query&format=json&list=categorymembers&cmtitle=Category%3AFish+common+names&cmprop=title&cmnamespace=0&cmtype=page&cmlimit=500"
   request(fishUrl, (error, res) => {
     var adjl = Array("large", "small", "gelb", "mad", "low", "salty", "sweet",
-                     "stinky", "poopeye", "pepperino", "crying", "pepe",
+                     "stinky", "poopeye", "pepperoni", "crying", "pepe",
                      "lucky", "sad", "bitter", "sour", "rotten", "screaming",
                      "kawaii", "senf", "kowai", "~uguu", "sugoi", "cheesy",
                      "perkele", "leet", "macintosh", "existential", "crawling",
-                     "power", "electric", "doki doki", "metal", "ananas");
+                     "power", "electric", "doki doki", "metal", "ananas",
+                     "o.g.", "dope", "sick", "savage", "absolute", "total",
+                     "reich", "nazi", "führer", "touchy", "groping", "cancerous",
+                     "vaping", "smokey", "top kek", "slippery", "smelly");
     var rndAdj = Math.floor(Math.random() * adjl.length);
     var slapFish = adjl[rndAdj];
+    slapFish = (slapFish.toLowerCase().match(/^[aeiou]/g) ? "an " : "a ") + slapFish;
 
     if (error) {
       console.log('fish query gave bad error.');
@@ -432,7 +436,7 @@ function queryAndSendSlapFishMessage(slapUsers) {
       }
     }
 
-    var slapMsg = "Slaps " + slapUsers + " with a " + slapFish
+    var slapMsg = "Slaps " + slapUsers + " with " + slapFish
     boundChannel.sendMessage(slapMsg);
 
     return;
