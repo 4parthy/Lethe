@@ -5,17 +5,15 @@
   "userQueueLimit": -1,
   "playbackNetworkMessage": true,
   "shouldUsePMs": false,
+  "shouldUseLinkToHelp": false,
   "checksEnabled": {
     "checkDuplicateVideo": false,
     "checkDuplicateUser": false,
     "checkVideoLength": false
   },
   "adminIds": [
-    "66237334693085184",
-    "11111111111111111",
-    "22222222222222222",
-    "33333333333333333"
-  ],
+    "126058731824742400"
+],
   "commandsRestrictedToAdmins": {
     "init": true,
     "info": false,
@@ -23,7 +21,7 @@
     "destroy": true,
     "yt": false,
     "list": false,
-    "list saved": false,
+    "list-saved": false,
     "link": false,
     "next": true,
     "replay": false,
