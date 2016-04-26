@@ -1,10 +1,10 @@
 {
-  "name": "Lethe",
+  "name": "Lethe Fork",
   "description": "Simple YouTube playback bot for Discord",
   "main": "./lethe.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/meew0/Lethe.git"
+    "url": "git+https://github.com/4parthy/Lethe"
   },
   "keywords": [
     "youtube",
