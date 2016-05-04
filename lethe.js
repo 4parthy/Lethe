@@ -443,6 +443,8 @@ client.on('message', m => {
       });
       console.log('memes: '+memeList.length);
       dankMeme = memeList[Math.floor(Math.random() * memeList.length - 1) + 1];
+      //http://i1.kym-cdn.com/photos/images/masonry/001/114/582/159.jpg
+      dankMeme = dankMeme.replace('masonry', 'newsfeed')
       if (!dankMeme) boundChannel.sendMessage("Ooops something went wrong, im such a klutz. Sory ._. "+m.author.toString());
       boundChannel.sendMessage(dankMeme);
       return;
