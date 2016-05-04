@@ -390,7 +390,7 @@ client.on('message', m => {
     return;
   }
 
-  if (m.content.toLowerCase().startsWith(`${botMention} slap`)) { // slap
+  if (m.content.toLowerCase().startsWith(`${botMention} sl`)) { // slap
     if (!checkCommand(m, 'slap')) return;
     console.log('Preparing fish slapping...');
     //if (!boundChannel) return;
@@ -401,11 +401,11 @@ client.on('message', m => {
     return;
   }
 
-  if (m.content.toLowerCase().startsWith(`${botMention} meme`)) {
+  if (m.content.toLowerCase().startsWith(`${botMention} me`)) {
     if (!checkCommand(m, 'meme')) return;
     var argument = spliceArguments(m.content)[1];
     if (!argument) {
-      client.reply(m, 'You need to tell a meme :o' +m.author.toString());
+      client.reply(m, 'You need to tell a meme :o ' +m.author.toString());
       return;
     }
     var splitArgs = spliceArguments(argument, 1);
@@ -416,7 +416,7 @@ client.on('message', m => {
     v.stripLow(meme);
     v.normalizeEmail(meme);
     v.escape(meme);
-    if (!v.isLength(meme, {min:2,max:32})
+    if (!v.isLength(meme, {min:2,max:64})
           || v.matches(meme,'[!"#$%&\'()*+,./@:;<=>[\\]^`{|}~]', 'i')) {
       boundChannel.sendMessage("That was bad and you should feel bad, baka! D: "+m.author.toString());
       return;
@@ -434,7 +434,9 @@ client.on('message', m => {
     request.get(datboiUrl).type('text/html').end((error, res) => {
       if (!res.ok || res.statusCode != 200) {
         console.log('dat boi query gave bad status.');
-        boundChannel.sendMessage("But thats not a meme :P "+m.author.toString());
+        boundChannel.sendMessage("Come on "+m.author.toString()
+            +" :3 you need to be a little bit more specific, you know."
+            +" You could look some maymays up at https://knowyourmeme.com/memes");
         return;
       }
       $ = cheerio.load(res.text)
@@ -443,10 +445,13 @@ client.on('message', m => {
         memeList[i] = $(elem).children('a').children('img').attr('data-src')
       });
       console.log('memes: '+memeList.length);
-      dankMeme = memeList[Math.floor(Math.random() * memeList.length - 1) + 1];
-      //http://i1.kym-cdn.com/photos/images/masonry/001/114/582/159.jpg
+      dankMeme = String(memeList[Math.floor(Math.random() * memeList.length - 1) + 1]);
+      if (typeof dankMeme == 'undefined' || !dankMeme) {
+        console.log('dank meme: '+dankMeme);
+        boundChannel.sendMessage("Something went wrong, I'm such a klutz. Sory~ ._. "+m.author.toString());
+        return;
+      }
       dankMeme = dankMeme.replace('masonry', 'newsfeed')
-      if (!dankMeme) boundChannel.sendMessage("Ooops something went wrong, im such a klutz. Sory ._. "+m.author.toString());
       boundChannel.sendMessage(dankMeme);
       return;
     });
