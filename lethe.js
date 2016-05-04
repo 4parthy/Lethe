@@ -1,7 +1,10 @@
+
 var Discord = require('discord.js');
 
 var ytdl = require('ytdl-core');
 var request = require('superagent');
+var cheerio = require('cheerio');
+var validator = require('validator');
 var url = require('url');
 
 // Output version information in console
@@ -46,16 +49,16 @@ var stockpile = '';
 var apiKey = false;
 
 var helpMsg = `Here are the commands I support:
-  **Queue a video:** yt [video ID/URL]
-  **List videos in queue:** list
-  **Create a shortcut:** save [video ID/URL] [shortcut name]
-  **Queue a playlist:** pl [playlist ID/URL]
-  **Shuffle queue:** shuffle
-  **Skip current video:** next
-  **Get YouTube URL:** link
-  **Get current playback time:** time
-  **Replay Video:** replay
-  **Search YouTube:** yq [search term]`
+**Queue a video:** yt [video ID/URL]
+**List videos in queue:** list
+**Create a shortcut:** save [video ID/URL] [shortcut name]
+**Queue a playlist:** pl [playlist ID/URL]
+**Shuffle queue:** shuffle
+**Skip current video:** next
+**Get YouTube URL:** link
+**Get current playback time:** time
+**Replay Video:** replay
+**Search YouTube:** yq [search term]`
 
 if (process.argv[4]) {
   apiKey = process.argv[4];
@@ -157,9 +160,9 @@ client.on('message', m => {
   }
 
   if (m.content.startsWith(`${botMention} yq`) // youtube query
-    || m.content.startsWith(`${botMention} qq`) // queue query
-    || m.content.startsWith(`${botMention} pq`) // play query
-    || m.content.startsWith(`${botMention} ytq`)) {
+  || m.content.startsWith(`${botMention} qq`) // queue query
+  || m.content.startsWith(`${botMention} pq`) // play query
+  || m.content.startsWith(`${botMention} ytq`)) {
 
     if (!checkCommand(m, 'yq')) return;
 
@@ -176,7 +179,7 @@ client.on('message', m => {
     }
 
     var requestUrl = 'https://www.googleapis.com/youtube/v3/search' +
-      `?part=snippet&q=${escape(args)}&key=${apiKey}`;
+    `?part=snippet&q=${escape(args)}&key=${apiKey}`;
 
     request(requestUrl, (error, response) => {
       if (!error && response.statusCode == 200) {
@@ -220,7 +223,7 @@ client.on('message', m => {
     }
 
     var requestUrl = 'https://www.googleapis.com/youtube/v3/playlistItems' +
-      `?part=contentDetails&maxResults=50&playlistId=${pid}&key=${apiKey}`;
+    `?part=contentDetails&maxResults=50&playlistId=${pid}&key=${apiKey}`;
 
     request.get(requestUrl).end((error, response) => {
       if (!error && response.statusCode == 200) {
@@ -250,8 +253,8 @@ client.on('message', m => {
   }
 
   if (m.content.startsWith(`${botMention} y`) // youtube
-    || m.content.startsWith(`${botMention} q`) // queue
-    || m.content.startsWith(`${botMention} p`)) { // play
+  || m.content.startsWith(`${botMention} q`) // queue
+  || m.content.startsWith(`${botMention} p`)) { // play
 
     if (!checkCommand(m, 'yt')) return;
 
@@ -389,254 +392,301 @@ client.on('message', m => {
   if (m.content.toLowerCase().startsWith(`${botMention} slap`)) { // slap
     if (!checkCommand(m, 'slap')) return;
     console.log('Preparing fish slapping...');
-    if (!boundChannel) return;
+    //if (!boundChannel) return;
     var slapUsers = m.author.toString();
     if (m.mentions.length >= 2) { slapUsers = m.mentions[1].toString() }
     console.log("going to slap: " + slapUsers);
     queryAndSendSlapFishMessage(slapUsers.trim());
     return;
   }
+
+  if (m.content.toLowerCase().startsWith(`${botMention} meme`)) {
+    if (!checkCommand(m, 'meme')) return;
+    var argument = spliceArguments(m.content)[1];
+    if (!argument) {
+      client.reply(m, 'You need to tell a meme :o' +m.author.toString());
+      return;
+    }
+    var splitArgs = spliceArguments(argument, 1);
+    var meme = splitArgs[0];
+
+    v = validator;
+    v.trim(meme);
+    v.stripLow(meme);
+    v.normalizeEmail(meme);
+    v.escape(meme);
+    if (!v.isLength(meme, {min:2,max:32})
+          || v.matches(meme,'[!"#$%&\'()*+,./@:;<=>[\\]^`{|}~]', 'i')) {
+      boundChannel.sendMessage("That was bad and you should feel bad, baka! D: "+m.author.toString());
+      return;
+    }
+
+    console.log('Preparing dank '+meme+' meme...');
+    queryAndSendDankMeme(m, meme);
+    return;
+  }
 });
 
-function queryAndSendSlapFishMessage(slapUsers) {
-  // Get random common fish name
-  var wikiUrl = "https://en.wikipedia.org"
-  var fishUrl = wikiUrl + "/w/api.php?action=query&format=json&list=categorymembers&cmtitle=Category%3AFish+common+names&cmprop=title&cmnamespace=0&cmtype=page&cmlimit=500"
-  request(fishUrl, (error, res) => {
-    var adjl = Array("large", "small", "gelb", "mad", "low", "salty", "sweet",
-                     "stinky", "poopeye", "pepperoni", "crying", "pepe",
-                     "lucky", "sad", "bitter", "sour", "rotten", "screaming",
-                     "kawaii", "senf", "kowai", "~uguu", "sugoi", "cheesy",
-                     "perkele", "leet", "macintosh", "existential", "crawling",
-                     "power", "electric", "doki doki", "metal", "ananas",
-                     "o.g.", "dope", "sick", "savage", "absolute", "total",
-                     "reich", "nazi", "führer", "touchy", "groping", "cancerous",
-                     "vaping", "smokey", "top kek", "slippery", "smelly");
-    var rndAdj = Math.floor(Math.random() * adjl.length);
-    var slapFish = adjl[rndAdj];
-    slapFish = (slapFish.toLowerCase().match(/^[aeiou]/g) ? "an " : "a ") + slapFish;
+  function queryAndSendDankMeme(m, meme) {
+    var datboiUrl = "http://knowyourmeme.com/memes/"+meme+"/photos"
+    var datboiPicUrl = ""
+    request.get(datboiUrl).type('text/html').end((error, res) => {
+      if (!res.ok || res.statusCode != 200) {
+        console.log('dat boi query gave bad status.');
+        boundChannel.sendMessage("But thats not a meme :P "+m.author.toString());
+        return;
+      }
+      $ = cheerio.load(res.text)
+      memeList = []
+      $('div[class=item], #photo_gallery').each((i, elem) => {
+        memeList[i] = $(elem).children('a').children('img').attr('data-src')
+      });
+      console.log('memes: '+memeList.length);
+      dankMeme = memeList[Math.floor(Math.random() * memeList.length - 1) + 1];
+      if (!dankMeme) boundChannel.sendMessage("Ooops something went wrong, im such a klutz. Sory ._. "+m.author.toString());
+      boundChannel.sendMessage(dankMeme);
+      return;
+    });
+  }
+  function queryAndSendSlapFishMessage(slapUsers) {
+    // Get random common fish name
+    var wikiUrl = "https://en.wikipedia.org"
+    var fishUrl = wikiUrl + "/w/api.php?action=query&format=json&list=categorymembers&cmtitle=Category%3AFish+common+names&cmprop=title&cmnamespace=0&cmtype=page&cmlimit=500"
+    request(fishUrl, (error, res) => {
+      var adjl = Array("large", "small", "gelb", "mad", "low", "salty", "sweet",
+      "stinky", "poopeye", "pepperoni", "crying", "pepe",
+      "lucky", "sad", "bitter", "sour", "rotten", "screaming",
+      "kawaii", "senf", "kowai", "~uguu", "sugoi", "cheesy",
+      "perkele", "leet", "macintosh", "existential", "crawling",
+      "power", "electric", "doki doki", "metal", "ananas",
+      "o.g.", "dope", "sick", "savage", "absolute", "total",
+      "reich", "nazi", "führer", "touchy", "groping", "cancerous",
+      "vaping", "smokey", "top kek", "slippery", "smelly", "dat boi");
+      var rndAdj = Math.floor(Math.random() * adjl.length);
+      var slapFish = adjl[rndAdj];
+      slapFish = (slapFish.toLowerCase().match(/^[aeiou]/g) ? "an " : "a ") + slapFish;
 
-    if (error) {
-      console.log('fish query gave bad error.');
-      slapFish += " ErrorTrout";
-    }
-    else if (res.statusCode != 200) {
-      console.log('fish query gave bad status.');
-      slapFish += " StatusTrout";
-    }
-    else {
-      var fishList = res.body.query.categorymembers;
-      var fishTitle = fishList[Math.floor(Math.random() * fishList.length)].title;
-      if (!fishTitle) {
-        console.log('fish query gave: ' + fishTitle);
-        slapFish += " QueryTrout";
+      if (error) {
+        console.log('fish query gave bad error.');
+        slapFish += " ErrorTrout";
+      }
+      else if (res.statusCode != 200) {
+        console.log('fish query gave bad status.');
+        slapFish += " StatusTrout";
       }
       else {
-        slapFish += " " + fishTitle;
-      }
-    }
-
-    var slapMsg = "Slaps " + slapUsers + " with " + slapFish
-    boundChannel.sendMessage(slapMsg);
-
-    return;
-  });
-
-  return;
-}
-
-function parseVidAndQueue(vid, m, suppress) {
-  vid = resolveVid(vid, m);
-  if (!vid) {
-    client.reply(m, 'You need to specify a video!');
-    return;
-  }
-
-  getInfoAndQueue(vid, m, suppress);
-}
-
-function resolveVid(thing, m) {
-  thing = thing.trim();
-  if (thing === 'current') {
-    if (currentVideo) return currentVideo.vid;
-    client.reply(m, 'No video currently playing!'); return false;
-  } else if (thing === 'last') {
-    if (lastVideo) return lastVideo.vid;
-    client.reply(m, 'No last played video found!'); return false;
-  } else if (/^http/.test(thing)) {
-    var parsed = url.parse(thing, true);
-    if (parsed.query.v) return parsed.query.v;
-    client.reply(m, 'Not a YouTube URL!'); return false;
-  } else return Saved.possiblyRetrieveVideo(thing);
-}
-
-function getInfoAndQueue(vid, m, suppress) {
-  YoutubeTrack.getInfoFromVid(vid, m, (err, video) => {
-    if (err) handleYTError(err);
-    else {
-      possiblyQueue(video, m.author.id, m, suppress);
-    }
-  });
-}
-
-function spliceArguments(message, after) {
-  after = after || 2;
-  var rest = message.split(' ');
-  var removed = rest.splice(0, after);
-  return [removed.join(' '), rest.join(' ')];
-}
-
-function saveVideo(video, vid, keywords, m) {
-  simplified = video.saveable();
-  if (Saved.saved.videos.hasOwnProperty(keywords)) client.reply(m, `Warning: ${Saved.saved.videos[keywords].prettyPrint()} is already saved as *${keywords}*! Overwriting.`);
-
-  var key;
-  if (key = Saved.isVideoSaved(vid)) client.reply(m, `Warning: This video is already saved as *${key}*! Adding it anyway as *${keywords}*.`);
-
-  Saved.saved.videos[keywords] = simplified;
-  client.reply(m, `Saved video ${video.prettyPrint()} as *${keywords}*`);
-  Saved.write();
-}
-
-function possiblyQueue(video, userId, m, suppress) {
-  video.userId = userId;
-  suppress = (suppress === undefined) ? false : suppress;
-  reason = shouldDisallowQueue(playQueue, video, Config);
-  if (!userIsAdmin(userId) && reason) {
-    fancyReply(m, `You can't queue **${video.title}** right now! Reason: ${reason}`);
-  } else {
-    playQueue.push(video);
-    if (suppress == 0) fancyReply(m, `Queued ${video.prettyPrint()}`);
-    else if (suppress > -1) fancyReply(m, `Queued ${video.prettyPrint()} and ${suppress} other videos`);
-
-    // Start playing if not playing yet
-    if (!currentVideo) nextInQueue();
-  }
-}
-
-function handleYTError(err) {
-  if (err.toString().indexOf('Code 150') > -1) {
-    // Video unavailable in country
-    boundChannel.sendMessage('This video is unavailable in the country the bot is running in! Please try a different video.');
-  } else if (err.message == 'Could not extract signature deciphering actions') {
-    boundChannel.sendMessage('YouTube streams have changed their formats, please update `ytdl-core` to account for the change!');
-  } else if (err.message == 'status code 404') {
-    boundChannel.sendMessage('That video does not exist!');
-  } else {
-    boundChannel.sendMessage('An error occurred while getting video information! Please try a different video.');
-  }
-
-  console.log(err.toString());
-}
-
-function playStopped() {
-  if (client.internal.voiceConnection) client.internal.voiceConnection.stopPlaying();
-
-  boundChannel.sendMessage(`Finished playing **${currentVideo.title}**`);
-  client.setStatus('online', null);
-  lastVideo = currentVideo;
-  currentVideo = false;
-  nextInQueue();
-}
-
-function play(video) {
-  currentVideo = video;
-  if (client.internal.voiceConnection) {
-    var connection = client.internal.voiceConnection;
-    currentStream = video.getStream();
-
-    currentStream.on('error', (err) => {
-      if (err.code === 'ECONNRESET') {
-        if (!Config.suppressPlaybackNetworkError) {
-          boundChannel.sendMessage(`There was a network error during playback! The connection to YouTube may be unstable. Auto-skipping to the next video...`);
+        var fishList = res.body.query.categorymembers;
+        var fishTitle = fishList[Math.floor(Math.random() * fishList.length)].title;
+        if (!fishTitle) {
+          console.log('fish query gave: ' + fishTitle);
+          slapFish += " QueryTrout";
         }
-      } else {
-        boundChannel.sendMessage(`There was an error during playback! **${err}**`);
+        else {
+          slapFish += " " + fishTitle;
+        }
       }
 
-      playStopped(); // skip to next video
+      var slapMsg = "Slaps " + slapUsers + " with " + slapFish
+      boundChannel.sendMessage(slapMsg);
+
+      return;
     });
 
-    currentStream.on('end', () => setTimeout(playStopped, Config.timeOffset || 8000)); // 8 second leeway for bad timing
-    connection.playRawStream(currentStream).then(intent => {
-      boundChannel.sendMessage(`Playing ${video.prettyPrint()}`);
-      client.setStatus('online', video.title);
+    return;
+  }
+
+  function parseVidAndQueue(vid, m, suppress) {
+    vid = resolveVid(vid, m);
+    if (!vid) {
+      client.reply(m, 'You need to specify a video!');
+      return;
+    }
+
+    getInfoAndQueue(vid, m, suppress);
+  }
+
+  function resolveVid(thing, m) {
+    thing = thing.trim();
+    if (thing === 'current') {
+      if (currentVideo) return currentVideo.vid;
+      client.reply(m, 'No video currently playing!'); return false;
+    } else if (thing === 'last') {
+      if (lastVideo) return lastVideo.vid;
+      client.reply(m, 'No last played video found!'); return false;
+    } else if (/^http/.test(thing)) {
+      var parsed = url.parse(thing, true);
+      if (parsed.query.v) return parsed.query.v;
+      client.reply(m, 'Not a YouTube URL!'); return false;
+    } else return Saved.possiblyRetrieveVideo(thing);
+  }
+
+  function getInfoAndQueue(vid, m, suppress) {
+    YoutubeTrack.getInfoFromVid(vid, m, (err, video) => {
+      if (err) handleYTError(err);
+      else {
+        possiblyQueue(video, m.author.id, m, suppress);
+      }
     });
   }
-}
 
-function userIsAdmin(userId) {
-  return Config.adminIds.indexOf(userId) > -1;
-}
+  function spliceArguments(message, after) {
+    after = after || 2;
+    var rest = message.split(' ');
+    var removed = rest.splice(0, after);
+    return [removed.join(' '), rest.join(' ')];
+  }
 
-function checkCommand(m, command) {
-  if (Config.commandsRestrictedToAdmins[command]) {
-    if (!userIsAdmin(m.author.id)) {
-      client.reply(m, `You don't have permission to execute that command! (user ID: \`${m.author.id}\`)`);
-      return false;
+  function saveVideo(video, vid, keywords, m) {
+    simplified = video.saveable();
+    if (Saved.saved.videos.hasOwnProperty(keywords)) client.reply(m, `Warning: ${Saved.saved.videos[keywords].prettyPrint()} is already saved as *${keywords}*! Overwriting.`);
+
+    var key;
+    if (key = Saved.isVideoSaved(vid)) client.reply(m, `Warning: This video is already saved as *${key}*! Adding it anyway as *${keywords}*.`);
+
+    Saved.saved.videos[keywords] = simplified;
+    client.reply(m, `Saved video ${video.prettyPrint()} as *${keywords}*`);
+    Saved.write();
+  }
+
+  function possiblyQueue(video, userId, m, suppress) {
+    video.userId = userId;
+    suppress = (suppress === undefined) ? false : suppress;
+    reason = shouldDisallowQueue(playQueue, video, Config);
+    if (!userIsAdmin(userId) && reason) {
+      fancyReply(m, `You can't queue **${video.title}** right now! Reason: ${reason}`);
+    } else {
+      playQueue.push(video);
+      if (suppress == 0) fancyReply(m, `Queued ${video.prettyPrint()}`);
+      else if (suppress > -1) fancyReply(m, `Queued ${video.prettyPrint()} and ${suppress} other videos`);
+
+      // Start playing if not playing yet
+      if (!currentVideo) nextInQueue();
     }
   }
 
-  return true;
-}
-
-function nextInQueue() {
-  if (playQueue.length > 0) {
-    next = playQueue.shift();
-    play(next);
-  }
-}
-
-function fancyReply(m, message) {
-  if (shouldStockpile) {
-    stockpile += message + '\n';
-  } else {
-    client.reply(m, message);
-  }
-}
-
-function spitUp(m) {
-  client.reply(m, stockpile);
-  stockpile = '';
-  shouldStockpile = false;
-}
-
-function error(argument) {
-  console.log(argument.stack);
-}
-
-// Email and password over command line
-client.login(process.argv[2] || Config.auth.email, process.argv[3] || Config.auth.password).catch((e) => {
-  try {
-    if (e.status === 400 && ~e.response.error.text.indexOf('email')) {
-      console.log('Error: You entered a bad email!');
-    } else if (e.status === 400 && ~e.response.error.text.indexOf('password')) {
-      console.log('Error: You entered a bad password!');
+  function handleYTError(err) {
+    if (err.toString().indexOf('Code 150') > -1) {
+      // Video unavailable in country
+      boundChannel.sendMessage('This video is unavailable in the country the bot is running in! Please try a different video.');
+    } else if (err.message == 'Could not extract signature deciphering actions') {
+      boundChannel.sendMessage('YouTube streams have changed their formats, please update `ytdl-core` to account for the change!');
+    } else if (err.message == 'status code 404') {
+      boundChannel.sendMessage('That video does not exist!');
     } else {
+      boundChannel.sendMessage('An error occurred while getting video information! Please try a different video.');
+    }
+
+    console.log(err.toString());
+  }
+
+  function playStopped() {
+    if (client.internal.voiceConnection) client.internal.voiceConnection.stopPlaying();
+
+    boundChannel.sendMessage(`Finished playing **${currentVideo.title}**`);
+    client.setStatus('online', null);
+    lastVideo = currentVideo;
+    currentVideo = false;
+    nextInQueue();
+  }
+
+  function play(video) {
+    currentVideo = video;
+    if (client.internal.voiceConnection) {
+      var connection = client.internal.voiceConnection;
+      currentStream = video.getStream();
+
+      currentStream.on('error', (err) => {
+        if (err.code === 'ECONNRESET') {
+          if (!Config.suppressPlaybackNetworkError) {
+            boundChannel.sendMessage(`There was a network error during playback! The connection to YouTube may be unstable. Auto-skipping to the next video...`);
+          }
+        } else {
+          boundChannel.sendMessage(`There was an error during playback! **${err}**`);
+        }
+
+        playStopped(); // skip to next video
+      });
+
+      currentStream.on('end', () => setTimeout(playStopped, Config.timeOffset || 8000)); // 8 second leeway for bad timing
+      connection.playRawStream(currentStream).then(intent => {
+        boundChannel.sendMessage(`Playing ${video.prettyPrint()}`);
+        client.setStatus('online', video.title);
+      });
+    }
+  }
+
+  function userIsAdmin(userId) {
+    return Config.adminIds.indexOf(userId) > -1;
+  }
+
+  function checkCommand(m, command) {
+    if (Config.commandsRestrictedToAdmins[command]) {
+      if (!userIsAdmin(m.author.id)) {
+        client.reply(m, `You don't have permission to execute that command! (user ID: \`${m.author.id}\`)`);
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  function nextInQueue() {
+    if (playQueue.length > 0) {
+      next = playQueue.shift();
+      play(next);
+    }
+  }
+
+  function fancyReply(m, message) {
+    if (shouldStockpile) {
+      stockpile += message + '\n';
+    } else {
+      client.reply(m, message);
+    }
+  }
+
+  function spitUp(m) {
+    client.reply(m, stockpile);
+    stockpile = '';
+    shouldStockpile = false;
+  }
+
+  function error(argument) {
+    console.log(argument.stack);
+  }
+
+  // Email and password over command line
+  client.login(process.argv[2] || Config.auth.email, process.argv[3] || Config.auth.password).catch((e) => {
+    try {
+      if (e.status === 400 && ~e.response.error.text.indexOf('email')) {
+        console.log('Error: You entered a bad email!');
+      } else if (e.status === 400 && ~e.response.error.text.indexOf('password')) {
+        console.log('Error: You entered a bad password!');
+      } else {
+        console.log(e);
+      }
+    } catch (err) {
       console.log(e);
     }
-  } catch (err) {
-    console.log(e);
-  }
-});
+  });
 
-process.on('uncaughtException', function(err) {
-  // Handle ECONNRESETs caused by `next` or `destroy`
-  if (err.code == 'ECONNRESET') {
-    // Yes, I'm aware this is really bad node code. However, the uncaught exception
-    // that causes this error is buried deep inside either discord.js, ytdl or node
-    // itself and after countless hours of trying to debug this issue I have simply
-    // given up. The fact that this error only happens *sometimes* while attempting
-    // to skip to the next video (at other times, I used to get an EPIPE, which was
-    // clearly an error in discord.js and was now fixed) tells me that this problem
-    // can actually be safely prevented using uncaughtException. Should this bother
-    // you, you can always try to debug the error yourself and make a PR.
-    console.log('Got an ECONNRESET! This is *probably* not an error. Stacktrace:');
-    console.log(err.stack);
-  } else {
-    // Normal error handling
-    console.log(err);
-    console.log(err.stack);
-    process.exit(0);
-  }
-});
+  process.on('uncaughtException', function(err) {
+    // Handle ECONNRESETs caused by `next` or `destroy`
+    if (err.code == 'ECONNRESET') {
+      // Yes, I'm aware this is really bad node code. However, the uncaught exception
+      // that causes this error is buried deep inside either discord.js, ytdl or node
+      // itself and after countless hours of trying to debug this issue I have simply
+      // given up. The fact that this error only happens *sometimes* while attempting
+      // to skip to the next video (at other times, I used to get an EPIPE, which was
+      // clearly an error in discord.js and was now fixed) tells me that this problem
+      // can actually be safely prevented using uncaughtException. Should this bother
+      // you, you can always try to debug the error yourself and make a PR.
+      console.log('Got an ECONNRESET! This is *probably* not an error. Stacktrace:');
+      console.log(err.stack);
+    } else {
+      // Normal error handling
+      console.log(err);
+      console.log(err.stack);
+      process.exit(0);
+    }
+  });
