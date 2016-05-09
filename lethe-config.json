@@ -12,7 +12,7 @@
     "checkVideoLength": false
   },
   "adminIds": [
-    "126058731824742400"
+    "##################"
 ],
   "commandsRestrictedToAdmins": {
     "init": true,
@@ -29,6 +29,8 @@
     "time": false,
     "yq": false,
     "pl": false,
-    "shuffle": true
+    "shuffle": true,
+    "sl": false,
+    "me": false
   }
 }
