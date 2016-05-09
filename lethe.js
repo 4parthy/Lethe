@@ -593,6 +593,7 @@ client.on('message', m => {
   }
 
   function play(video) {
+    currentStream = null;
     currentVideo = video;
     if (client.internal.voiceConnection) {
       var connection = client.internal.voiceConnection;
