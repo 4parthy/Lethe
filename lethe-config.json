@@ -1,5 +1,6 @@
 {
   "configRev": 4,
+  "volumeFactor": 0.5,
   "timeOffset": 8000,
   "maxLength": -1,
   "userQueueLimit": -1,
