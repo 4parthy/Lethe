@@ -102,6 +102,11 @@ client.on('message', m => {
     return;
   }
 
+  function onConnection(error, connection) {
+    if(!error) connection.setVolume(Config.volumeFactor || 0.5 );
+    return;
+  }
+
   if (m.content.startsWith(`${botMention} init`)) { // init
     if (!checkCommand(m, 'init')) return;
     if (boundChannel) return;
@@ -113,23 +118,21 @@ client.on('message', m => {
           boundChannel = m.channel;
           if (userChannel) {
             client.reply(m, `Binding to text channel <#${boundChannel.id}> and voice channel **${userChannel.name}** \`(${userChannel.id})\``);
-            client.joinVoiceChannel(userChannel).catch(error);
+            client.joinVoiceChannel(userChannel, onConnection).catch(error);
           } else {
             client.reply(m, `Binding to text channel <#${boundChannel.id}> and voice channel **${channel.name}** \`(${channel.id})\``);
-            client.joinVoiceChannel(channel).catch(error);
+            client.joinVoiceChannel(channel, onConnection).catch(error);
           }
 
           break;
         } else if (channel.name === channelToJoin) {
           boundChannel = m.channel;
           client.reply(m, `Binding to text channel <#${boundChannel.id}> and voice channel **${channel.name}** \`(${channel.id})\``);
-          client.joinVoiceChannel(channel).catch(error);
+          client.joinVoiceChannel(channel, onConnection).catch(error);
           break;
         }
       }
     }
-
-    client.voiceConnection.setVolume(Config.volumeFactor || 0.5 );
 
     return;
   }
