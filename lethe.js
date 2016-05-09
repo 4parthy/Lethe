@@ -405,7 +405,7 @@ client.on('message', m => {
     if (!checkCommand(m, 'meme')) return;
     var argument = spliceArguments(m.content)[1];
     if (!argument) {
-      client.reply(m, 'You need to tell a meme :o ' +m.author.toString());
+      client.reply(m, 'You need to tell me a meme :o ' +m.author.toString());
       return;
     }
     var splitArgs = spliceArguments(argument, 1);
