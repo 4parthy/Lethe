@@ -42,6 +42,8 @@ var lastVideo = false;
 
 var botMention = false;
 
+var voterList = [];
+
 var shouldStockpile = false;
 var stockpile = '';
 
@@ -160,6 +162,30 @@ client.on('message', m => {
       client.reply(m, 'No video is currently playing.');
     }
 
+    return;
+  }
+
+  if (m.content.startsWith(`${botMention} vote`)) { // vote
+    if (!checkCommand(m, 'vote')) return;
+    channel = m.author.voiceChannel;
+    if (channel && channel instanceof Discord.VoiceChannel) {
+      author = m.author.toString();
+      if (voterList.indexOf(author) == -1) voterList.push(author);
+      if (voterList.length >= channel.members.length / 2) {
+        client.reply(m, `Vote reached critical mass: ${voterList.length}/${channel.members.length}.`);
+        voterList = []
+        if (currentVideo) {
+          playStopped();
+        } else {
+          client.reply(m, 'No video is currently playing.');
+        }
+      } else {
+        client.reply(m, `Voted: ${voterList.length}/${channel.members.length}. Needed: ${channel.members.length/2}.`);
+      }
+    }
+    else {
+      client.reply(m, `Check your privilege ${m.author.toString()}`);
+    }
     return;
   }
 
@@ -643,6 +669,7 @@ client.on('message', m => {
   }
 
   function nextInQueue() {
+    voterList = []
     if (playQueue.length > 0) {
       next = playQueue.shift();
       play(next);
