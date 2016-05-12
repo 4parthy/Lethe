@@ -1,7 +1,7 @@
 {
   "configRev": 4,
   "volumeFactor": 0.5,
-  "timeOffset": 8000,
+  "timeOffset": 14000,
   "maxLength": -1,
   "userQueueLimit": -1,
   "playbackNetworkMessage": true,
@@ -31,7 +31,8 @@
     "yq": false,
     "pl": false,
     "shuffle": true,
-    "sl": false,
-    "me": false
+    "slap": false,
+    "meme": false
+    "vote": false
   }
 }

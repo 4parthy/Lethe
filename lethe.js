@@ -326,11 +326,12 @@ client.on('message', m => {
     return;
   }
 
-  if (m.content.startsWith(`${botMention} link`)) {
-    if (!checkCommand(m, 'link')) return;
-    if (currentVideo) client.reply(m, `<https://youtu.be/${currentVideo.vid}>`);
-    return; // stop propagation
-  }
+  // if (m.content.startsWith(`${botMention} ln`)
+  // || m.content.startsWith(`${botMention} link`)) { // link
+  //   if (!checkCommand(m, 'link')) return;
+  //   if (currentVideo) client.reply(m, `<https://youtu.be/${currentVideo.vid}>`);
+  //   return; // stop propagation
+  // }
 
   if (m.content.startsWith(`${botMention} list-saved`)) { // list saved
     if (!checkCommand(m, 'list-saved')) return;
@@ -353,7 +354,8 @@ client.on('message', m => {
     return; // so list doesn't get triggered
   }
 
-  if (m.content.startsWith(`${botMention} list`)) { // list
+  if (m.content.startsWith(`${botMention} ls`)
+  || m.content.startsWith(`${botMention} li`)) { // list
     if (!checkCommand(m, 'list')) return;
 
     var formattedList = '';
@@ -410,7 +412,7 @@ client.on('message', m => {
     return;
   }
 
-  if (m.content.startsWith(`${botMention} time`)) { // time
+  if (m.content.startsWith(`${botMention} ti`)) { // time
     if (!checkCommand(m, 'time')) return;
     var streamTime = client.internal.voiceConnection.streamTime; // in ms
     var streamSeconds = streamTime / 1000;
@@ -430,7 +432,22 @@ client.on('message', m => {
     return;
   }
 
-  if (m.content.toLowerCase().startsWith(`${botMention} me`)) {
+  if (m.content.toLowerCase().startsWith(`${botMention} np`)) {
+    if (!checkCommand(m, 'now-playing')) return;
+    if (currentVideo) {
+      client.reply(m, `Currently playing: ${currentVideo.fullPrint()}\n`);
+      client.reply(m, `<https://youtu.be/${currentVideo.vid}>`);
+      var streamTime = client.internal.voiceConnection.streamTime; // in ms
+      var streamSeconds = streamTime / 1000;
+      var videoTime = currentVideo.lengthSeconds;
+      client.reply(m, `${Util.formatTime(streamSeconds)} / ${Util.formatTime(videoTime)} (${((streamSeconds * 100) / videoTime).toFixed(2)} %)`);
+    } else {
+      client.reply(m, `Currently no video is playing`);
+    }
+    return;
+  }
+
+  if (m.content.toLowerCase().startsWith(`${botMention} me`)) { // meme
     if (!checkCommand(m, 'meme')) return;
     var argument = spliceArguments(m.content)[1];
     if (!argument) {
@@ -647,7 +664,7 @@ client.on('message', m => {
 
       currentStream.on('end', () => setTimeout(playStopped, Config.timeOffset || 8000)); // 8 second leeway for bad timing
       connection.playRawStream(currentStream).then(intent => {
-        boundChannel.sendMessage(`Playing ${video.prettyPrint()}`);
+        //boundChannel.sendMessage(`Playing ${video.prettyPrint()}`);
         client.setStatus('online', video.title);
       });
     }
