@@ -31,8 +31,8 @@
     "yq": false,
     "pl": false,
     "shuffle": true,
-    "slap": false,
-    "meme": false,
-    "vote": false
+    "sl": false,
+    "me": false,
+    "cl": true
   }
 }
