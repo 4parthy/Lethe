@@ -463,7 +463,7 @@ client.on('message', m => {
     v.normalizeEmail(meme);
     v.escape(meme);
     if (!v.isLength(meme, {min:2,max:64})
-          || v.matches(meme,'[!"#$%&\'()*+,./@:;<=>[\\]^`{|}~]', 'i')) {
+          || v.matches(meme,'[!"#$&\'()*+,./@:;<=>[\\]^`{|}~]', 'i')) {
       boundChannel.sendMessage("That was bad and you should feel bad, baka! D: "+m.author.toString());
       return;
     }

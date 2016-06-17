@@ -1,7 +1,7 @@
 {
   "configRev": 4,
   "volumeFactor": 0.5,
-  "timeOffset": 14000,
+  "timeOffset": 16000,
   "maxLength": -1,
   "userQueueLimit": -1,
   "playbackNetworkMessage": true,
