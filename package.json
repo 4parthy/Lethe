@@ -1,5 +1,5 @@
 {
-  "name": "Lethe Fork",
+  "name": "lethe-fork",
   "description": "Simple YouTube playback bot for Discord",
   "main": "./lethe.js",
   "repository": {
@@ -20,11 +20,14 @@
   },
   "homepage": "https://github.com/meew0/Lethe#readme",
   "dependencies": {
-    "discord.js": "hydrabolt/discord.js#master",
+    "discord.js": "^7.0.1",
     "git-rev": "^0.2.1",
     "node-opus": "^0.1.12",
     "superagent": "^1.6.1",
-    "ytdl-core": "^0.7.9"
+    "ytdl-core": "^0.7.9",
+    "uri-js": "^2.1.1",
+    "cheerio": "^0.20",
+    "validator": "^5.3"
   },
   "version": "1.0.0"
 }
