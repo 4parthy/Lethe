@@ -786,6 +786,9 @@ client.on('message', m => {
   // Email and password over command line
   client.login(process.argv[2] || Config.auth.email, process.argv[3] || Config.auth.password).catch((e) => {
     try {
+      if (!(e.status === 200)) {
+        console.log('[debug]', 'response: '+e.response.error.text);
+      }
       if (e.status === 400 && ~e.response.error.text.indexOf('email')) {
         console.log('Error: You entered a bad email!');
       } else if (e.status === 400 && ~e.response.error.text.indexOf('password')) {
