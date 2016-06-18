@@ -251,6 +251,7 @@ client.on('message', m => {
 
   if (m.content.startsWith(`${botMention} flip`)) { // Flip coin
     if (!checkCommand(m, 'flip')) return;
+    var coin = spliceArguments(m.content)[1];
     var coin = m.mentions[1].toString();
     if (!coin) {
       flipCoin(m, false);
