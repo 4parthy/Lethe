@@ -286,7 +286,7 @@ client.on('message', m => {
         return;
       }
       else {
-        client.reply(m, m.author.toString()+ ' picks '+flipCoin);
+        client.reply(m, 'picks '+flipCoin);
         client.reply(m, 'tosses coin in the air and it lands on '+botCoin);
         if (flipCoin === botCoin)
         {
