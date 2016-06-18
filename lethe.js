@@ -250,17 +250,17 @@ client.on('message', m => {
   }
 
   if (m.content.startsWith(`${botMention} flip`)) { // Flip coin
-    if (!checkCommand(m, 'pl')) return;
+    if (!checkCommand(m, 'flip')) return;
     var coin = spliceArguments(m.content)[1];
     if (!coin) {
-      flipCoin(false);
+      flipCoin(m, false);
     }
     else {
-      flipCoin(coin);
+      flipCoin(m, coin);
     }
   }
 
-  function flipCoin(coin) {
+  function flipCoin(m, coin) {
     var botCoin = '';
     var coinToss = Math.random();
     if (coinToss < 0.5) {
