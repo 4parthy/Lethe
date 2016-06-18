@@ -251,7 +251,7 @@ client.on('message', m => {
 
   if (m.content.startsWith(`${botMention} flip`)) { // Flip coin
     if (!checkCommand(m, 'flip')) return;
-    var coin = spliceArguments(m.content)[1];
+    var coin = m.mentions[1].toString();
     if (!coin) {
       flipCoin(m, false);
     }
@@ -274,27 +274,31 @@ client.on('message', m => {
     {
       // no user coin specified
       client.reply(m, 'flips coin and it lands on '+botCoin);
+      return;
     }
     else
     {
       flipCoin = coin.toUpperCase();
       // coin specified
-      if (flipCoin !== 'HEADS' || flipCoin !== 'TAILS')
+      if (flipCoin !== 'HEADS' && flipCoin !== 'TAILS')
       {
         client.reply(m, 'Coins only have 2 sides: "HEADS" & "TAILS".');
+        return;
       }
       else {
-        client.reply(m, m.author.toString()+ " picks '+flipCoin");
+        client.reply(m, m.author.toString()+ ' picks '+flipCoin);
         client.reply(m, 'tosses coin in the air and it lands on '+botCoin);
         if (flipCoin === botCoin)
         {
           // gz you win
-          client.reply(m, 'Congratulations '+m.author.toString()+' you WON.');
+          client.reply(m, 'Congratulations you WON.');
+          return;
           // Give user credits.
         }
         else {
           // you failed and lost.
-          client.reply(m, 'You LOST '+m.author.toString());
+          client.reply(m, 'You LOST');
+          return;
           // Take users credits
         }
       }
