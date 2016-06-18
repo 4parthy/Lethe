@@ -167,22 +167,35 @@ client.on('message', m => {
   if (m.content.startsWith(`${botMention} vote`)) { // vote
     if (!checkCommand(m, 'vote')) return;
     channel = m.author.voiceChannel;
-    if (channel && channel instanceof Discord.VoiceChannel) {
+    if (channel && channel instanceof Discord.VoiceChannel)
+    {
       author = m.author.toString();
-      if (voterList.indexOf(author) == -1) voterList.push(author);
-      if (voterList.length >= channel.members.length / 2) {
+
+      if (voterList.indexOf(author) == -1)
+      {
+        voterList.push(author);
+      }
+
+      if (voterList.length >= channel.members.length / 2)
+      {
         client.reply(m, `Vote reached critical mass: ${voterList.length}/${channel.members.length}.`);
         voterList = []
-        if (currentVideo) {
+        if (currentVideo)
+        {
           playStopped();
-        } else {
+        }
+        else
+        {
           client.reply(m, 'No video is currently playing.');
         }
-      } else {
+      }
+      else
+      {
         client.reply(m, `Voted: ${voterList.length}/${channel.members.length}. Needed: ${channel.members.length/2}.`);
       }
     }
-    else {
+    else
+    {
       client.reply(m, `Check your privilege ${m.author.toString()}`);
     }
     return;
@@ -235,6 +248,59 @@ client.on('message', m => {
 
     return; // have to stop propagation
   }
+
+  if (m.content.startsWith(`${botMention} flip`)) { // Flip coin
+    if (!checkCommand(m, 'pl')) return;
+    var coin = spliceArguments(m.content)[1];
+    if (!coin) {
+      flipCoin(false);
+    }
+    else {
+      flipCoin(coin);
+    }
+  }
+
+  function flipCoin(coin) {
+    var botCoin = '';
+    var coinToss = Math.random();
+    if (coinToss < 0.5) {
+      botCoin = "HEADS";
+    }
+    else {
+      botCoin = "TAILS";
+    }
+
+    if (coin === false)
+    {
+      // no user coin specified
+      client.reply(m, 'flips coin and it lands on '+botCoin);
+    }
+    else
+    {
+      flipCoin = coin.toUpperCase();
+      // coin specified
+      if (flipCoin !== 'HEADS' || flipCoin !== 'TAILS')
+      {
+        client.reply(m, 'Coins only have 2 sides: "HEADS" & "TAILS".');
+      }
+      else {
+        client.reply(m, m.author.toString()+ " picks '+flipCoin");
+        client.reply(m, 'tosses coin in the air and it lands on '+botCoin);
+        if (flipCoin === botCoin)
+        {
+          // gz you win
+          client.reply(m, 'Congratulations '+m.author.toString()+' you WON.');
+          // Give user credits.
+        }
+        else {
+          // you failed and lost.
+          client.reply(m, 'You LOST '+m.author.toString());
+          // Take users credits
+        }
+      }
+    }
+  }
+
 
   if (m.content.startsWith(`${botMention} pl`)) { // playlist
     if (!checkCommand(m, 'pl')) return;
@@ -425,7 +491,9 @@ client.on('message', m => {
     console.log('Preparing fish slapping...');
     //if (!boundChannel) return;
     var slapUsers = m.author.toString();
-    if (m.mentions.length >= 2) { slapUsers = m.mentions[1].toString() }
+    if (m.mentions.length >= 2) {
+      slapUsers = m.mentions[1].toString()
+    }
     console.log("going to slap: " + slapUsers);
     queryAndSendSlapFishMessage(slapUsers.trim());
     return;
@@ -471,7 +539,7 @@ client.on('message', m => {
     queryAndSendDankMeme(m, meme);
     return;
   }
-  
+
   if (m.content.toLowerCase().startsWith(`${botMention} cl`)) { // clean
     if (!checkCommand(m, 'clean')) return;
     console.log('cleaning...');
